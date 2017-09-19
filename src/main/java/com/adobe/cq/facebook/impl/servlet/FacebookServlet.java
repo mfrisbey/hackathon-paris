@@ -61,12 +61,17 @@ public class FacebookServlet extends SlingAllMethodsServlet {
         String hubMode = request.getParameter("hub.mode");
         String verifyToken = request.getParameter("hub.verify_token");
         String challenge = request.getParameter("hub.challenge");
+        String message = request.getParameter("message");
+        log.info("message %s", message);
         if (hubMode != null && verifyToken != null && challenge != null && hubMode.equalsIgnoreCase("subscribe") &&
                 verifyToken.equalsIgnoreCase("too_many_secrets")) {
           log.info("Validating webhook");
           response.setContentType("text/plain");
           response.setStatus(200);
           response.getWriter().print(challenge);
+        } else if (message != null) {
+            log.info("sending message");
+            sendMessage(message, response);
         } else {
           log.error("Failed validation. Make sure the validation tokens match.");
           response.setStatus(403);
@@ -75,13 +80,21 @@ public class FacebookServlet extends SlingAllMethodsServlet {
     
     @Override
     public void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
+    }
+    
+    @Activate
+    protected void activate(BundleContext context, Map<String, Object> config) {
+        httpClient = HttpClients.createDefault();
+    }
+    
+    private void sendMessage(String messageText, SlingHttpServletResponse response) throws IOException {
         // mark.frisbey
         JSONObject json = new JSONObject();
         JSONObject recipient = new JSONObject();
         JSONObject message = new JSONObject();
         try {
             recipient.put("id", "mark.frisbey");
-            message.put("text", request.getParameter("message"));
+            message.put("text", messageText);
             json.put("recipient", recipient);
             json.put("message", message);
             callSendAPI(json);
@@ -90,11 +103,6 @@ public class FacebookServlet extends SlingAllMethodsServlet {
             response.setStatus(500);
             response.getWriter().print("unexpected json error");
         }
-    }
-    
-    @Activate
-    protected void activate(BundleContext context, Map<String, Object> config) {
-        httpClient = HttpClients.createDefault();
     }
     
     private void callSendAPI(JSONObject json) throws IOException {
