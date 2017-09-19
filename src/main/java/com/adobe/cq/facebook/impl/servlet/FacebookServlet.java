@@ -62,6 +62,8 @@ public class FacebookServlet extends SlingAllMethodsServlet {
         String verifyToken = request.getParameter("hub.verify_token");
         String challenge = request.getParameter("hub.challenge");
         String message = request.getParameter("message");
+        String phoneNumber = request.getParameter("phone");
+        String fbId = request.getParameter("fbid");
         log.info("message %s", message);
         if (hubMode != null && verifyToken != null && challenge != null && hubMode.equalsIgnoreCase("subscribe") &&
                 verifyToken.equalsIgnoreCase("too_many_secrets")) {
@@ -69,9 +71,9 @@ public class FacebookServlet extends SlingAllMethodsServlet {
           response.setContentType("text/plain");
           response.setStatus(200);
           response.getWriter().print(challenge);
-        } else if (message != null) {
+        } else if (message != null && (fbId != null || phoneNumber != null)) {
             log.info("sending message");
-            sendMessage(message, response);
+            sendMessage(message, fbId, phoneNumber, response);
         } else {
           log.error("Failed validation. Make sure the validation tokens match.");
           response.setStatus(403);
@@ -87,13 +89,17 @@ public class FacebookServlet extends SlingAllMethodsServlet {
         httpClient = HttpClients.createDefault();
     }
     
-    private void sendMessage(String messageText, SlingHttpServletResponse response) throws IOException {
+    private void sendMessage(String messageText, String fbId, String phoneNumber, SlingHttpServletResponse response) throws IOException {
         // mark.frisbey
         JSONObject json = new JSONObject();
         JSONObject recipient = new JSONObject();
         JSONObject message = new JSONObject();
         try {
-            recipient.put("id", "10214334538506722");
+            if (fbId != null) {
+                recipient.put("id", fbId);
+            } else {
+                recipient.put("phone_number", phoneNumber);
+            }
             message.put("text", messageText);
             json.put("recipient", recipient);
             json.put("message", message);
