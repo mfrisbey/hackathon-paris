@@ -19,11 +19,15 @@
 package com.adobe.cq.facebook.impl.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -34,6 +38,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.request.RequestParameter;
+import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +46,7 @@ public class HttpUtil {
 
   private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
-  public static final CloseableHttpResponse httpPost(Object body, String uri,
+  public static final CloseableHttpResponse httpPost(JSONObject body, String uri,
       CloseableHttpClient httpClient,
       List<Header> headers) throws IOException {
 
@@ -54,7 +59,7 @@ public class HttpUtil {
     }
     if (null != body) {
       ObjectMapper mapper = new ObjectMapper();
-      StringEntity jsonBody = new StringEntity(mapper.writeValueAsString(body));
+      StringEntity jsonBody = new StringEntity(body.toString());
       post.setEntity(jsonBody);
     }
 

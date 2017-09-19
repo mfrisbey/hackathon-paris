@@ -93,11 +93,14 @@ public class FacebookServlet extends SlingAllMethodsServlet {
         JSONObject recipient = new JSONObject();
         JSONObject message = new JSONObject();
         try {
-            recipient.put("id", "mark.frisbey");
+            recipient.put("id", "10214334538506722");
             message.put("text", messageText);
             json.put("recipient", recipient);
             json.put("message", message);
             HttpResponse res = callSendAPI(json);
+            
+            response.getWriter().print(String.format("sending JSON %s. ", json.toString()));
+            
 
             String responseBody = "";
              if (res.getEntity() != null) {
@@ -114,10 +117,9 @@ public class FacebookServlet extends SlingAllMethodsServlet {
     }
     
     private HttpResponse callSendAPI(JSONObject json) throws IOException {
-        List<Header> headers = new ArrayList<Header>();
-        headers.add(new BasicHeader("access_token", "EAAbVkTdGxxoBAFlBmyNwvXMuU5K4uZAy7bqrBnknZBzNUGIK8UFbnsR4tlZBqQGhcTKFgzvgnwazuz0aFJZCETOy7R9F1mT8Kz5bI7vM6GZCVn2dz2kEv45lvNZAf7M9isC2ULlsZAhfaZBZAuQW7OZAZC9Cq9NdEFsDvjr0VJAZCHK7WwZDZD"));
+        String url = String.format("https://graph.facebook.com/v2.6/me/messages?access_token=%s", "EAAbVkTdGxxoBAFlBmyNwvXMuU5K4uZAy7bqrBnknZBzNUGIK8UFbnsR4tlZBqQGhcTKFgzvgnwazuz0aFJZCETOy7R9F1mT8Kz5bI7vM6GZCVn2dz2kEv45lvNZAf7M9isC2ULlsZAhfaZBZAuQW7OZAZC9Cq9NdEFsDvjr0VJAZCHK7WwZDZD");
         
-        HttpResponse response = HttpUtil.httpPost(json, "https://graph.facebook.com/v2.6/me/messages", httpClient, headers);
+        HttpResponse response = HttpUtil.httpPost(json, url, httpClient, new ArrayList<Header>());
         
          log.info("received response");
          return response;
