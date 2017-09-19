@@ -97,7 +97,15 @@ public class FacebookServlet extends SlingAllMethodsServlet {
             message.put("text", messageText);
             json.put("recipient", recipient);
             json.put("message", message);
-            callSendAPI(json);
+            HttpResponse res = callSendAPI(json);
+
+            String responseBody = "";
+             if (res.getEntity() != null) {
+               responseBody = EntityUtils.toString(res.getEntity());
+             }
+
+             response.setStatus(200);
+            response.getWriter().print(String.format("received response %s from facebook api. %s", res.getStatusLine().getStatusCode(), responseBody));
         } catch (JSONException e) {
             log.error("unexpecte json error building message json", e);
             response.setStatus(500);
@@ -105,19 +113,13 @@ public class FacebookServlet extends SlingAllMethodsServlet {
         }
     }
     
-    private void callSendAPI(JSONObject json) throws IOException {
+    private HttpResponse callSendAPI(JSONObject json) throws IOException {
         List<Header> headers = new ArrayList<Header>();
         headers.add(new BasicHeader("access_token", "EAAbVkTdGxxoBAFlBmyNwvXMuU5K4uZAy7bqrBnknZBzNUGIK8UFbnsR4tlZBqQGhcTKFgzvgnwazuz0aFJZCETOy7R9F1mT8Kz5bI7vM6GZCVn2dz2kEv45lvNZAf7M9isC2ULlsZAhfaZBZAuQW7OZAZC9Cq9NdEFsDvjr0VJAZCHK7WwZDZD"));
         
         HttpResponse response = HttpUtil.httpPost(json, "https://graph.facebook.com/v2.6/me/messages", httpClient, headers);
         
-        int responseStatusCode = response.getStatusLine().getStatusCode();
-
-        String responseBody = "";
-         if (response.getEntity() != null) {
-           responseBody = EntityUtils.toString(response.getEntity());
-         }
-         
          log.info("received response");
+         return response;
       }
 }
