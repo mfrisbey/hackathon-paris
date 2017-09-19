@@ -18,24 +18,37 @@
 package com.adobe.cq.facebook.impl.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.sling.SlingServlet;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.util.EntityUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
-import org.slf4j.Logger;
+import org.osgi.framework.BundleContext;
 import org.slf4j.LoggerFactory;
 
 @SlingServlet(
-        paths = {"/bin/facebook/webhook"}
+        paths = {"/bin/facebook/webhook"},
+        methods = {"POST", "GET"}
 )
 public class FacebookServlet extends SlingAllMethodsServlet {
     
     private static final long serialVersionUID = 8232363484487708721L;
 
-    private static final Logger log = LoggerFactory.getLogger(FacebookServlet.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(FacebookServlet.class);
+    
+    protected CloseableHttpClient httpClient;
     
     public FacebookServlet() {
     }
@@ -79,25 +92,24 @@ public class FacebookServlet extends SlingAllMethodsServlet {
         }
     }
     
-    private void callSendAPI(JSONObject json) {
-//        request({
-//          uri: 'https://graph.facebook.com/v2.6/me/messages',
-//          qs: { access_token: PAGE_ACCESS_TOKEN },
-//          method: 'POST',
-//          json: messageData
-//
-//        }, function (error, response, body) {
-//          if (!error && response.statusCode == 200) {
-//            var recipientId = body.recipient_id;
-//            var messageId = body.message_id;
-//
-//            console.log("Successfully sent generic message with id %s to recipient %s", 
-//              messageId, recipientId);
-//          } else {
-//            console.error("Unable to send message.");
-//            console.error(response);
-//            console.error(error);
-//          }
-//        });  
+    @Activate
+    protected void activate(BundleContext context, Map<String, Object> config) {
+        httpClient = HttpClients.createDefault();
+    }
+    
+    private void callSendAPI(JSONObject json) throws IOException {
+        List<Header> headers = new ArrayList<Header>();
+        headers.add(new BasicHeader("access_token", "EAAbVkTdGxxoBAFlBmyNwvXMuU5K4uZAy7bqrBnknZBzNUGIK8UFbnsR4tlZBqQGhcTKFgzvgnwazuz0aFJZCETOy7R9F1mT8Kz5bI7vM6GZCVn2dz2kEv45lvNZAf7M9isC2ULlsZAhfaZBZAuQW7OZAZC9Cq9NdEFsDvjr0VJAZCHK7WwZDZD"));
+        
+        HttpResponse response = HttpUtil.httpPost(json, "https://graph.facebook.com/v2.6/me/messages", httpClient, headers);
+        
+        int responseStatusCode = response.getStatusLine().getStatusCode();
+
+        String responseBody = "";
+         if (response.getEntity() != null) {
+           responseBody = EntityUtils.toString(response.getEntity());
+         }
+         
+         log.info("received response");
       }
 }
