@@ -1,22 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ /*******************************************************************************
-  ~  * ADOBE CONFIDENTIAL
-  ~  * ___________________
-  ~  *
-  ~  * Copyright 2016 Adobe Systems Incorporated
-  ~  * All Rights Reserved.
-  ~  *
-  ~  * NOTICE:  All information contained herein is, and remains
-  ~  * the property of Adobe Systems Incorporated and its suppliers,
-  ~  * if any.  The intellectual and technical concepts contained
-  ~  * herein are proprietary to Adobe Systems Incorporated and its
-  ~  * suppliers and are protected by trade secret or copyright law.
-  ~  * Dissemination of this information or reproduction of this material
-  ~  * is strictly forbidden unless prior written permission is obtained
-  ~  * from Adobe Systems Incorporated.
-  ~  ******************************************************************************/
-  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
   <modelVersion>4.0.0</modelVersion>
   <!-- ====================================================================== -->
@@ -27,6 +9,22 @@
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
   <name>AEM Facebook Support</name>
+
+  <repositories>
+    <repository>
+      <id>artifactory-releases</id>
+      <name>Adobe Artifactory Repository</name>
+      <url>https://artifactory.corp.adobe.com/artifactory/maven-aem-dev</url>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
 
   <properties>
     <crx.host>author-hton2.experiencecloudlab.com</crx.host>
@@ -190,13 +188,6 @@
         <scope>provided</scope>
       </dependency>
 
-      <!--- granite -->
-      <dependency>
-        <groupId>com.adobe.granite</groupId>
-        <artifactId>com.adobe.granite.crypto</artifactId>
-        <version>3.1.2</version>
-        <scope>provided</scope>
-      </dependency>
 
       <dependency>
         <groupId>com.adobe.granite</groupId>
@@ -376,21 +367,12 @@
       <artifactId>org.apache.sling.hc.core</artifactId>
     </dependency>
 
-    <!--- granite -->
-    <dependency>
-      <groupId>com.adobe.granite</groupId>
-      <artifactId>com.adobe.granite.crypto</artifactId>
-    </dependency>
+
     <dependency>
       <groupId>com.adobe.granite</groupId>
       <artifactId>com.adobe.granite.auth.oauth</artifactId>
     </dependency>
 
-    <!--- cq -->
-    <dependency>
-      <groupId>com.day.cq.wcm</groupId>
-      <artifactId>cq-wcm-webservice-support</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>com.day.cq</groupId>
