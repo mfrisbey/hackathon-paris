@@ -23,6 +23,8 @@ import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingAllMethodsServlet;
+import org.apache.sling.commons.json.JSONException;
+import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,39 +63,41 @@ public class FacebookServlet extends SlingAllMethodsServlet {
     @Override
     public void doPost(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         // mark.frisbey
-        request.getParameter("json");
-        JSONParser json = new JSONParser();
-        var messageData = {
-                recipient: {
-                  id: recipientId
-                },
-                message: {
-                  text: messageText
-                }
-              };
-
-              callSendAPI(messageData);
+        JSONObject json = new JSONObject();
+        JSONObject recipient = new JSONObject();
+        JSONObject message = new JSONObject();
+        try {
+            recipient.put("id", "mark.frisbey");
+            message.put("text", request.getParameter("message"));
+            json.put("recipient", recipient);
+            json.put("message", message);
+            callSendAPI(json);
+        } catch (JSONException e) {
+            log.error("unexpecte json error building message json", e);
+            response.setStatus(500);
+            response.getWriter().print("unexpected json error");
+        }
     }
     
-    function callSendAPI(messageData) {
-        request({
-          uri: 'https://graph.facebook.com/v2.6/me/messages',
-          qs: { access_token: PAGE_ACCESS_TOKEN },
-          method: 'POST',
-          json: messageData
-
-        }, function (error, response, body) {
-          if (!error && response.statusCode == 200) {
-            var recipientId = body.recipient_id;
-            var messageId = body.message_id;
-
-            console.log("Successfully sent generic message with id %s to recipient %s", 
-              messageId, recipientId);
-          } else {
-            console.error("Unable to send message.");
-            console.error(response);
-            console.error(error);
-          }
-        });  
+    private void callSendAPI(JSONObject json) {
+//        request({
+//          uri: 'https://graph.facebook.com/v2.6/me/messages',
+//          qs: { access_token: PAGE_ACCESS_TOKEN },
+//          method: 'POST',
+//          json: messageData
+//
+//        }, function (error, response, body) {
+//          if (!error && response.statusCode == 200) {
+//            var recipientId = body.recipient_id;
+//            var messageId = body.message_id;
+//
+//            console.log("Successfully sent generic message with id %s to recipient %s", 
+//              messageId, recipientId);
+//          } else {
+//            console.error("Unable to send message.");
+//            console.error(response);
+//            console.error(error);
+//          }
+//        });  
       }
 }
